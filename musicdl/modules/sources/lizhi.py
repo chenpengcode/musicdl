@@ -7,22 +7,26 @@ Author:
     Charles的皮卡丘
 '''
 import requests
+
 from .base import Base
 from ..utils.misc import *
 
-
 '''荔枝FM下载类'''
+
+
 class lizhi(Base):
     def __init__(self, config, logger_handle, **kwargs):
         super(lizhi, self).__init__(config, logger_handle, **kwargs)
         self.source = 'lizhi'
         self.__initialize()
+
     '''歌曲搜索'''
+
     def search(self, keyword):
         self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
         cfg = self.config.copy()
         response = self.session.get(self.search_url.format(keyword), headers=self.headers)
-        all_items = response.json()['audio']['data']        
+        all_items = response.json()['audio']['data']
         songinfos = []
         for item in all_items:
             response = self.session.get(self.songinfo_url.format(item['audio']['id']), headers=self.headers)
@@ -51,7 +55,9 @@ class lizhi(Base):
             songinfos.append(songinfo)
             if len(songinfos) == cfg['search_size_per_source']: break
         return songinfos
+
     '''初始化'''
+
     def __initialize(self):
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',

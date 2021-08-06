@@ -7,17 +7,21 @@ Author:
     Charles的皮卡丘
 '''
 import requests
+
 from .base import Base
 from ..utils.misc import *
 
-
 '''咪咕音乐下载类'''
+
+
 class migu(Base):
     def __init__(self, config, logger_handle, **kwargs):
         super(migu, self).__init__(config, logger_handle, **kwargs)
         self.source = 'migu'
         self.__initialize()
+
     '''歌曲搜索'''
+
     def search(self, keyword):
         self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
         cfg = self.config.copy()
@@ -37,15 +41,16 @@ class migu(Base):
             download_url = ''
             filesize = '-MB'
             for rate in sorted(item.get('rateFormats', []), key=lambda x: int(x['size']), reverse=True):
-                if (int(rate['size']) == 0) or (not rate.get('formatType', '')) or (not rate.get('resourceType', '')): continue
+                if (int(rate['size']) == 0) or (not rate.get('formatType', '')) or (
+                not rate.get('resourceType', '')): continue
                 ext = 'flac' if rate.get('formatType') == 'SQ' else 'mp3'
                 download_url = self.player_url.format(
-                    copyrightId=item['copyrightId'], 
-                    contentId=item['contentId'], 
+                    copyrightId=item['copyrightId'],
+                    contentId=item['contentId'],
                     toneFlag=rate['formatType'],
                     resourceType=rate['resourceType']
                 )
-                filesize = str(round(int(rate['size'])/1024/1024, 2)) + 'MB'
+                filesize = str(round(int(rate['size']) / 1024 / 1024, 2)) + 'MB'
                 break
             if not download_url: continue
             lyric_url, lyric = item.get('lyricUrl', ''), ''
@@ -72,10 +77,12 @@ class migu(Base):
             songinfos.append(songinfo)
             if len(songinfos) == cfg['search_size_per_source']: break
         return songinfos
+
     '''初始化'''
+
     def __initialize(self):
         self.headers = {
-            'Referer': 'https://m.music.migu.cn/', 
+            'Referer': 'https://m.music.migu.cn/',
             'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36'
         }
         self.search_url = 'http://pd.musicapp.migu.cn/MIGUM3.0/v1.0/content/search_all.do'

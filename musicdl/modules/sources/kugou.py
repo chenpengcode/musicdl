@@ -6,19 +6,23 @@ Author:
 微信公众号:
     Charles的皮卡丘
 '''
-import time
 import requests
+import time
+
 from .base import Base
 from ..utils.misc import *
 
-
 '''酷狗音乐下载类'''
+
+
 class kugou(Base):
     def __init__(self, config, logger_handle, **kwargs):
         super(kugou, self).__init__(config, logger_handle, **kwargs)
         self.source = 'kugou'
         self.__initialize()
+
     '''歌曲搜索'''
+
     def search(self, keyword):
         self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
         cfg = self.config.copy()
@@ -62,7 +66,7 @@ class kugou(Base):
             response = self.session.get(self.lyric_url, headers=self.lyric_headers, params=params)
             response.encoding = 'utf-8'
             lyric = response.text
-            filesize = str(round(int(response_json['data']['filesize'])/1024/1024, 2)) + 'MB'
+            filesize = str(round(int(response_json['data']['filesize']) / 1024 / 1024, 2)) + 'MB'
             ext = download_url.split('.')[-1]
             duration = int(item.get('Duration', 0))
             songinfo = {
@@ -82,7 +86,9 @@ class kugou(Base):
             if not songinfo['album']: songinfo['album'] = '-'
             songinfos.append(songinfo)
         return songinfos
+
     '''初始化'''
+
     def __initialize(self):
         self.search_headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
@@ -90,7 +96,7 @@ class kugou(Base):
         }
         self.hash_headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36',
-            'Referer':'https://www.kugou.com/song/'
+            'Referer': 'https://www.kugou.com/song/'
         }
         self.lyric_headers = {
             'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X] AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',

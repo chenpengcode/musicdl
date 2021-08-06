@@ -6,12 +6,13 @@ Author:
 微信公众号:
     Charles的皮卡丘
 '''
+import json
 import os
 import re
-import json
-
 
 '''检查文件夹是否存在'''
+
+
 def checkDir(dirpath):
     if not os.path.exists(dirpath):
         os.mkdir(dirpath)
@@ -20,12 +21,16 @@ def checkDir(dirpath):
 
 
 '''导入配置文件'''
+
+
 def loadConfig(filepath='config.json'):
     f = open(filepath, 'r', encoding='utf-8')
     return json.load(f)
 
 
 '''清除可能出问题的字符'''
+
+
 def filterBadCharacter(string):
     need_removed_strs = ['<em>', '</em>', '<', '>', '\\', '/', '?', ':', '"', '：', '|', '？', '*']
     for item in need_removed_strs:
@@ -39,6 +44,8 @@ def filterBadCharacter(string):
 
 
 '''秒转时分秒'''
+
+
 def seconds2hms(seconds):
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)

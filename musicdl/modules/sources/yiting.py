@@ -6,19 +6,23 @@ Author:
 微信公众号:
     Charles的皮卡丘
 '''
-import time
 import requests
+import time
+
 from .base import Base
 from ..utils.misc import *
 
-
 '''一听音乐下载类'''
+
+
 class yiting(Base):
     def __init__(self, config, logger_handle, **kwargs):
         super(yiting, self).__init__(config, logger_handle, **kwargs)
         self.source = 'yiting'
         self.__initialize()
+
     '''歌曲搜索'''
+
     def search(self, keyword):
         self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
         cfg = self.config.copy()
@@ -40,7 +44,7 @@ class yiting(Base):
             if 'song_filepath' not in response_json: continue
             download_url = 'http://h5.1ting.com/file?url=' + response_json['song_filepath'].replace('.wma', '.mp3')
             self.headers.update({'Referer': f'http://www.1ting.com/geci{item["song_id"]}.html'})
-            response = self.session.get(self.lyric_url+str(item['song_id']), headers=self.headers)
+            response = self.session.get(self.lyric_url + str(item['song_id']), headers=self.headers)
             response.encoding = 'utf-8'
             lyric = response.text
             filesize = '-MB'
@@ -64,7 +68,9 @@ class yiting(Base):
             songinfos.append(songinfo)
             if len(songinfos) == cfg['search_size_per_source']: break
         return songinfos
+
     '''初始化'''
+
     def __initialize(self):
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36'

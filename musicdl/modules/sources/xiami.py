@@ -6,22 +6,26 @@ Author:
 微信公众号:
     Charles的皮卡丘
 '''
-import re
-import time
 import json
+import re
 import requests
-from .base import Base
+import time
 from hashlib import md5
+
+from .base import Base
 from ..utils.misc import *
 
-
 '''虾米音乐下载类'''
+
+
 class xiami(Base):
     def __init__(self, config, logger_handle, **kwargs):
         super(xiami, self).__init__(config, logger_handle, **kwargs)
         self.source = 'xiami'
         self.__initialize()
+
     '''歌曲搜索'''
+
     def search(self, keyword):
         self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
         cfg = self.config.copy()
@@ -38,7 +42,7 @@ class xiami(Base):
             download_url = ''
             for file_info in item['listenFiles']:
                 if not file_info['downloadFileSize']: continue
-                filesize = str(round(int(file_info['downloadFileSize'])/1024/1024, 2)) + 'MB'
+                filesize = str(round(int(file_info['downloadFileSize']) / 1024 / 1024, 2)) + 'MB'
                 download_url = file_info['listenFile']
                 ext = file_info['format']
                 duration = int(file_info.get('length', 0)) / 1000
@@ -56,7 +60,8 @@ class xiami(Base):
                 'album': filterBadCharacter(item.get('albumName', '-')),
                 'songname': filterBadCharacter(item.get('songName', '-')).split('–')[0].strip(),
                 'savedir': cfg['savedir'],
-                'savename': '_'.join([self.source, filterBadCharacter(item.get('songName', '-')).split('–')[0].strip()]),
+                'savename': '_'.join(
+                    [self.source, filterBadCharacter(item.get('songName', '-')).split('–')[0].strip()]),
                 'download_url': download_url,
                 'lyric': lyric,
                 'filesize': filesize,
@@ -66,7 +71,9 @@ class xiami(Base):
             if not songinfo['album']: songinfo['album'] = '-'
             songinfos.append(songinfo)
         return songinfos
+
     '''虾米签名'''
+
     def __xiamiSign(self, params, token=''):
         appkey = '23649156'
         t = str(int(time.time() * 1000))
@@ -84,7 +91,9 @@ class xiami(Base):
             'data': data
         }
         return params
+
     '''获得请求所需的token'''
+
     def __getToken(self):
         action = self.actions['getsongdetail']
         url = self.base_url.format(action=action)
@@ -92,7 +101,9 @@ class xiami(Base):
         response = self.session.get(url, params=self.__xiamiSign(params))
         cookies = response.cookies.get_dict()
         return cookies['_m_h5_tk'].split('_')[0]
+
     '''初始化'''
+
     def __initialize(self):
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36',

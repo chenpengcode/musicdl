@@ -7,17 +7,21 @@ Author:
     Charles的皮卡丘
 '''
 import requests
+
 from .base import Base
 from ..utils.misc import *
 
-
 '''百度无损音乐下载类'''
+
+
 class baiduFlac(Base):
     def __init__(self, config, logger_handle, **kwargs):
         super(baiduFlac, self).__init__(config, logger_handle, **kwargs)
         self.source = 'baiduFlac'
         self.__initialize()
+
     '''歌曲搜索'''
+
     def search(self, keyword):
         self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
         cfg = self.config.copy()
@@ -41,7 +45,7 @@ class baiduFlac(Base):
             if response_json.get('errorCode') != 22000: continue
             download_url = response_json['data']['songList'][0]['songLink']
             if not download_url: continue
-            filesize = str(round(int(response_json['data']['songList'][0]['size'])/1024/1024, 2)) + 'MB'
+            filesize = str(round(int(response_json['data']['songList'][0]['size']) / 1024 / 1024, 2)) + 'MB'
             ext = response_json['data']['songList'][0]['format']
             duration = int(response_json['data']['songList'][0]['time'])
             songinfo = {
@@ -60,7 +64,9 @@ class baiduFlac(Base):
             if not songinfo['album']: songinfo['album'] = '-'
             songinfos.append(songinfo)
         return songinfos
+
     '''初始化'''
+
     def __initialize(self):
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',

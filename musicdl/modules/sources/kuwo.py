@@ -6,19 +6,23 @@ Author:
 微信公众号:
     Charles的皮卡丘
 '''
-import time
 import requests
+import time
+
 from .base import Base
 from ..utils.misc import *
 
-
 '''酷我音乐下载类'''
+
+
 class kuwo(Base):
     def __init__(self, config, logger_handle, **kwargs):
         super(kuwo, self).__init__(config, logger_handle, **kwargs)
         self.source = 'kuwo'
         self.__initialize()
+
     '''歌曲搜索'''
+
     def search(self, keyword):
         self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
         cfg = self.config.copy()
@@ -39,7 +43,7 @@ class kuwo(Base):
                 'type': 'convert_url3',
                 'br': '128kmp3',
                 'from': 'web',
-                't': str(int(time.time()*1000)),
+                't': str(int(time.time() * 1000)),
                 'reqId': 'de97aac1-73c3-11ea-a715-7de8a8cc7b68'
             }
             response = self.session.get(self.player_url, headers=self.headers, params=params)
@@ -73,7 +77,9 @@ class kuwo(Base):
             if not songinfo['album']: songinfo['album'] = '-'
             songinfos.append(songinfo)
         return songinfos
+
     '''初始化'''
+
     def __initialize(self):
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',

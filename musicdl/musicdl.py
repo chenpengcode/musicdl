@@ -6,16 +6,16 @@ Author:
 微信公众号:
     Charles的皮卡丘
 '''
-import sys
 import copy
+import sys
 import threading
+
 if __name__ == '__main__':
     from modules import *
     from __init__ import __version__
 else:
     from .modules import *
     from .__init__ import __version__
-
 
 '''basic info'''
 BASICINFO = '''************************************************************
@@ -30,21 +30,24 @@ Author: Charles
     当前路径下的%s文件夹内
 ************************************************************'''
 
-
 '''音乐下载器'''
+
+
 class musicdl():
     def __init__(self, configpath=None, config=None, **kwargs):
         self.config = loadConfig('config.json') if config is None else config
         self.logger_handle = Logger(self.config['logfilepath'])
         self.initializeAllSources()
+
     '''非开发人员外部调用'''
+
     def run(self, target_srcs=None):
         while True:
             print(BASICINFO % (__version__, self.config.get('savedir')))
             # 音乐搜索
             user_input = self.dealInput('请输入歌曲搜索的关键词: ')
             target_srcs = [
-                'baiduFlac', 'kugou', 'kuwo', 'qq', 'qianqian', 
+                'baiduFlac', 'kugou', 'kuwo', 'qq', 'qianqian',
                 'netease', 'migu', 'xiami', 'joox', 'yiting',
             ] if target_srcs is None else target_srcs
             search_results = self.search(user_input, target_srcs)
@@ -55,7 +58,8 @@ class musicdl():
             idx = 0
             for key, values in search_results.items():
                 for value in values:
-                    items.append([str(idx), value['singers'], value['songname'], value['filesize'], value['duration'], value['album'], value['source']])
+                    items.append([str(idx), value['singers'], value['songname'], value['filesize'], value['duration'],
+                                  value['album'], value['source']])
                     records.update({str(idx): value})
                     idx += 1
             printTable(title, items)
@@ -67,7 +71,9 @@ class musicdl():
                 songinfo = records.get(item, '')
                 if songinfo: songinfos.append(songinfo)
             self.download(songinfos)
+
     '''音乐搜索'''
+
     def search(self, keyword, target_srcs):
         def threadSearch(search_api, keyword, target_src, search_results):
             try:
@@ -75,6 +81,7 @@ class musicdl():
             except Exception as err:
                 self.logger_handle.error(str(err), True)
                 self.logger_handle.warning('无法在%s中搜索 ——> %s...' % (target_src, keyword))
+
         task_pool, search_results = [], {}
         for target_src in target_srcs:
             task = threading.Thread(
@@ -86,11 +93,15 @@ class musicdl():
         for task in task_pool:
             task.join()
         return search_results
+
     '''音乐下载'''
+
     def download(self, songinfos):
         for songinfo in songinfos:
             getattr(self, songinfo['source']).download([songinfo])
+
     '''初始化所有支持的搜索/下载源'''
+
     def initializeAllSources(self):
         supported_sources = {
             'qq': qq,
@@ -108,7 +119,9 @@ class musicdl():
         }
         for key, value in supported_sources.items():
             setattr(self, key, value(copy.deepcopy(self.config), self.logger_handle))
+
     '''处理用户输入'''
+
     def dealInput(self, tip=''):
         user_input = input(tip)
         if user_input.lower() == 'q':

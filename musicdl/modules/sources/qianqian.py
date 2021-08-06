@@ -6,20 +6,24 @@ Author:
 微信公众号:
     Charles的皮卡丘
 '''
-import time
 import hashlib
 import requests
+import time
+
 from .base import Base
 from ..utils.misc import *
 
-
 '''千千音乐下载类'''
+
+
 class qianqian(Base):
     def __init__(self, config, logger_handle, **kwargs):
         super(qianqian, self).__init__(config, logger_handle, **kwargs)
         self.source = 'qianqian'
         self.__initialize()
+
     '''歌曲搜索'''
+
     def search(self, keyword):
         self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
         cfg = self.config.copy()
@@ -52,7 +56,7 @@ class qianqian(Base):
                 response = self.session.get(lyric_url, headers=self.headers)
                 response.encoding = 'utf-8'
                 lyric = response.text
-            filesize = str(round(int(response_json['data']['size'])/1024/1024, 2)) + 'MB'
+            filesize = str(round(int(response_json['data']['size']) / 1024 / 1024, 2)) + 'MB'
             ext = response_json['data']['format']
             duration = int(response_json['data']['duration'])
             songinfo = {
@@ -73,7 +77,9 @@ class qianqian(Base):
             songinfos.append(songinfo)
             if len(songinfos) == cfg['search_size_per_source']: break
         return songinfos
+
     '''计算sign值'''
+
     def __calcSign(self, keyword):
         secret = '0b50b02fd0d73a9c4c8c3a781c30845f'
         e = {
@@ -88,7 +94,9 @@ class qianqian(Base):
             i += f'&{o}={e[o]}'
         sign = hashlib.md5((i + secret).encode('utf-8')).hexdigest()
         return sign
+
     '''初始化'''
+
     def __initialize(self):
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',

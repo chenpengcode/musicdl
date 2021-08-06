@@ -9,17 +9,21 @@ Author:
 import base64
 import random
 import requests
+
 from .base import Base
 from ..utils.misc import *
 
-
 '''QQ音乐下载类'''
+
+
 class qq(Base):
     def __init__(self, config, logger_handle, **kwargs):
         super(qq, self).__init__(config, logger_handle, **kwargs)
         self.source = 'qq'
         self.__initialize()
+
     '''歌曲搜索'''
+
     def search(self, keyword):
         self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
         cfg = self.config.copy()
@@ -46,7 +50,8 @@ class qq(Base):
             ext = ''
             download_url = ''
             filesize = '-MB'
-            for quality in [("A000", "ape", 800), ("F000", "flac", 800), ("M800", "mp3", 320), ("C400", "m4a", 128), ("M500", "mp3", 128)]:
+            for quality in [("A000", "ape", 800), ("F000", "flac", 800), ("M800", "mp3", 320), ("C400", "m4a", 128),
+                            ("M500", "mp3", 128)]:
                 params['filename'] = '%s%s.%s' % (quality[0], item['songmid'], quality[1])
                 response = self.session.get(self.mobile_fcg_url, headers=self.ios_headers, params=params)
                 response_json = response.json()
@@ -54,7 +59,8 @@ class qq(Base):
                 vkey = response_json.get('data', {}).get('items', [{}])[0].get('vkey', '')
                 if vkey:
                     ext = quality[1]
-                    download_url = 'http://dl.stream.qqmusic.qq.com/{}?vkey={}&guid={}&uin=3051522991&fromtag=64'.format('%s%s.%s' % (quality[0], item['songmid'], quality[1]), vkey, params['guid'])
+                    download_url = 'http://dl.stream.qqmusic.qq.com/{}?vkey={}&guid={}&uin=3051522991&fromtag=64'.format(
+                        '%s%s.%s' % (quality[0], item['songmid'], quality[1]), vkey, params['guid'])
                     if ext in ['ape', 'flac']:
                         filesize = item['size%s' % ext]
                     elif ext in ['mp3', 'm4a']:
@@ -63,16 +69,21 @@ class qq(Base):
             if not download_url:
                 params = {
                     'data': json.dumps({
-                        "req": {"module": "CDN.SrfCdnDispatchServer", "method": "GetCdnDispatch", "param": {"guid": "3982823384", "calltype": 0, "userip": ""}},
-                        "req_0": {"module": "vkey.GetVkeyServer", "method": "CgiGetVkey", "param": {"guid": "3982823384", "songmid": [item['songmid']], "songtype": [0], "uin": "0", "loginflag": 1, "platform": "20"}},
+                        "req": {"module": "CDN.SrfCdnDispatchServer", "method": "GetCdnDispatch",
+                                "param": {"guid": "3982823384", "calltype": 0, "userip": ""}},
+                        "req_0": {"module": "vkey.GetVkeyServer", "method": "CgiGetVkey",
+                                  "param": {"guid": "3982823384", "songmid": [item['songmid']], "songtype": [0],
+                                            "uin": "0", "loginflag": 1, "platform": "20"}},
                         "comm": {"uin": 0, "format": "json", "ct": 24, "cv": 0}
                     })
                 }
                 response = self.session.get(self.fcg_url, headers=self.ios_headers, params=params)
                 response_json = response.json()
-                if response_json['code'] == 0 and response_json['req']['code'] == 0 and response_json['req_0']['code'] == 0:
+                if response_json['code'] == 0 and response_json['req']['code'] == 0 and response_json['req_0'][
+                    'code'] == 0:
                     ext = '.m4a'
-                    download_url = str(response_json["req"]["data"]["freeflowsip"][0]) + str(response_json["req_0"]["data"]["midurlinfo"][0]["purl"])
+                    download_url = str(response_json["req"]["data"]["freeflowsip"][0]) + str(
+                        response_json["req_0"]["data"]["midurlinfo"][0]["purl"])
                     filesize = item['size128']
             if (not download_url) or (filesize == '-MB') or (filesize == 0): continue
             params = {
@@ -85,9 +96,10 @@ class qq(Base):
                 'outCharset': 'utf-8',
                 'platform': 'yqq'
             }
-            response = self.session.get(self.lyric_url, headers={'Referer': 'https://y.qq.com/portal/player.html'}, params=params)
+            response = self.session.get(self.lyric_url, headers={'Referer': 'https://y.qq.com/portal/player.html'},
+                                        params=params)
             lyric = base64.b64decode(response.json().get('lyric', '')).decode('utf-8')
-            filesize = str(round(filesize/1024/1024, 2)) + 'MB'
+            filesize = str(round(filesize / 1024 / 1024, 2)) + 'MB'
             duration = int(item.get('interval', 0))
             songinfo = {
                 'source': self.source,
@@ -106,7 +118,9 @@ class qq(Base):
             if not songinfo['album']: songinfo['album'] = '-'
             songinfos.append(songinfo)
         return songinfos
+
     '''初始化'''
+
     def __initialize(self):
         self.ios_headers = {
             'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',

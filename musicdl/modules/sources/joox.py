@@ -6,21 +6,25 @@ Author:
 微信公众号:
     Charles的皮卡丘
 '''
-import json
-import time
 import base64
+import json
 import requests
+import time
+
 from .base import Base
 from ..utils.misc import *
 
-
 '''JOOX音乐下载类'''
+
+
 class joox(Base):
     def __init__(self, config, logger_handle, **kwargs):
         super(joox, self).__init__(config, logger_handle, **kwargs)
         self.source = 'joox'
         self.__initialize()
+
     '''歌曲搜索'''
+
     def search(self, keyword):
         self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
         cfg = self.config.copy()
@@ -41,7 +45,7 @@ class joox(Base):
                 'country': 'hk',
                 'from_type': '-1',
                 'channel_id': '-1',
-                '_': str(int(time.time()*1000))
+                '_': str(int(time.time() * 1000))
             }
             response = self.session.get(self.songinfo_url, headers=self.headers, params=params)
             response_json = json.loads(response.text.replace('MusicInfoCallback(', '')[:-1])
@@ -49,7 +53,7 @@ class joox(Base):
             for q_key in [('r320Url', '320'), ('r192Url', '192'), ('mp3Url', '128')]:
                 download_url = response_json.get(q_key[0], '')
                 if not download_url: continue
-                filesize = str(round(int(json.loads(response_json['kbps_map'])[q_key[1]])/1024/1024, 2)) + 'MB'
+                filesize = str(round(int(json.loads(response_json['kbps_map'])[q_key[1]]) / 1024 / 1024, 2)) + 'MB'
                 ext = 'mp3' if q_key[0] in ['r320Url', 'mp3Url'] else 'm4a'
             if not download_url: continue
             params = {
@@ -63,7 +67,8 @@ class joox(Base):
             songinfo = {
                 'source': self.source,
                 'songid': str(item['songid']),
-                'singers': filterBadCharacter(','.join([base64.b64decode(s['name']).decode('utf-8') for s in item.get('singer_list', [])])),
+                'singers': filterBadCharacter(
+                    ','.join([base64.b64decode(s['name']).decode('utf-8') for s in item.get('singer_list', [])])),
                 'album': filterBadCharacter(response_json.get('malbum', '-')),
                 'songname': filterBadCharacter(response_json.get('msong', '-')),
                 'savedir': cfg['savedir'],
@@ -77,7 +82,9 @@ class joox(Base):
             if not songinfo['album']: songinfo['album'] = '-'
             songinfos.append(songinfo)
         return songinfos
+
     '''初始化'''
+
     def __initialize(self):
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/605.1.15 (KHTML, like Gecko)',
